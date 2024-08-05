@@ -1,46 +1,44 @@
 #!/usr/bin/env rackup
-# frozen_string_literal: true
 
 require_relative 'config/environment'
 
-self.freeze_app
+require 'rack/freeze'
 
-if UTOPIA.production?
+if RACK_ENV == :production
 	# Handle exceptions in production with a error page and send an email notification:
 	use Utopia::Exceptions::Handler
 	use Utopia::Exceptions::Mailer
 else
 	# We want to propate exceptions up when running tests:
-	use Rack::ShowExceptions unless UTOPIA.testing?
+	use Rack::ShowExceptions unless RACK_ENV == :test
+	
+	# Serve the public directory in a similar way to the web server:
+	use Utopia::Static, root: 'public'
 end
 
-# serve static files from public/
-use Utopia::Static, root: 'public'
+use Rack::Sendfile
 
-use Utopia::Redirection::Rewrite, {
+use Utopia::ContentLength
+
+use Utopia::Redirection::Rewrite,
 	'/' => '/client/index'
-}
 
 use Utopia::Redirection::DirectoryIndex
 
-use Utopia::Redirection::Errors, {
+use Utopia::Redirection::Errors,
 	404 => '/errors/file-not-found'
-}
 
-require 'utopia/localization'
 use Utopia::Localization,
-	default_locale: 'en',
-	locales: ['en', 'de', 'ja', 'zh']
+	:default_locale => 'en',
+	:locales => ['en', 'de', 'ja', 'zh']
 
 require 'utopia/session'
 use Utopia::Session,
-	expires_after: 3600 * 24,
-	secret: UTOPIA.secret_for(:session),
-	secure: true
+	:expires_after => 3600 * 24,
+	:secret => ENV['UTOPIA_SESSION_SECRET']
 
 use Utopia::Controller
 
-# serve static files from pages/
 use Utopia::Static
 
 # Serve dynamic content

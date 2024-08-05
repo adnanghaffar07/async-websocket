@@ -142,14 +142,6 @@ nav {
 	color: #aaa;
 }
 
-section.input {
-	margin: 1rem;
-}
-
-section.input input {
-	width: 100%;
-}
-
 section.features {
 	display: flex;
 	flex-wrap: wrap;
