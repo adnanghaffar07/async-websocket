@@ -1,101 +1,47 @@
-# Copyright, 2015, by Samuel G. D. Williams. <http://www.codeotaku.com>
-# 
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# frozen_string_literal: true
 
-require 'websocket/driver'
+# Released under the MIT License.
+# Copyright, 2018-2023, by Samuel Williams.
+# Copyright, 2019, by Janko Marohnić.
+
+require 'protocol/websocket/connection'
+require 'protocol/websocket/headers'
+
 require 'json'
-
-require 'async/io/stream'
 
 module Async
 	module WebSocket
+		Frame = ::Protocol::WebSocket::Frame
+		
 		# This is a basic synchronous websocket client:
-		class Connection
-			BLOCK_SIZE = Async::IO::Stream::BLOCK_SIZE
+		class Connection < ::Protocol::WebSocket::Connection
+			include ::Protocol::WebSocket::Headers
 			
-			EVENTS = [:open, :message, :close]
-			
-			def initialize(socket, driver)
-				@socket = socket
-				@driver = driver
+			def self.call(framer, protocol = [], extensions = nil, **options)
+				instance = self.new(framer, Array(protocol).first, **options)
 				
-				@queue = []
+				extensions&.apply(instance)
 				
-				@driver.on(:error) do |error|
-					raise error
-				end
+				return instance unless block_given?
 				
-				EVENTS.each do |event|
-					@driver.on(event) do |data|
-						@queue.push(data)
-					end
-				end
-				
-				@driver.start
-			end
-			
-			attr :driver
-			attr :url
-			
-			def next_event
-				@socket.flush
-				
-				while @queue.empty?
-					data = @socket.readpartial(BLOCK_SIZE)
-					
-					if data and !data.empty?
-						@driver.parse(data)
-					else
-						return nil
-					end
-				end
-				
-				@queue.shift
-			rescue EOFError, Errno::ECONNRESET
-				return nil
-			end
-			
-			def next_message
-				while event = next_event
-					if event.is_a? ::WebSocket::Driver::MessageEvent
-						return JSON.parse(event.data)
-					elsif event.is_a? ::WebSocket::Driver::CloseEvent
-						return nil
-					end
+				begin
+					yield instance
+				ensure
+					instance.close
 				end
 			end
 			
-			def send_text(text)
-				@driver.text(text)
+			def initialize(framer, protocol = nil, **options)
+				super(framer, **options)
+				
+				@protocol = protocol
 			end
 			
-			def send_message(message)
-				@driver.text(JSON.dump(message))
+			def reusable?
+				false
 			end
 			
-			def write(data)
-				@socket.write(data)
-			end
-			
-			def close
-				@driver.close
-			end
+			attr :protocol
 		end
 	end
 end

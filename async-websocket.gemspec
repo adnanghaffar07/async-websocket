@@ -1,29 +1,29 @@
+# frozen_string_literal: true
 
-require_relative 'lib/async/websocket/version'
+require_relative "lib/async/websocket/version"
 
 Gem::Specification.new do |spec|
-	spec.name          = "async-websocket"
-	spec.version       = Async::WebSocket::VERSION
-	spec.authors       = ["Samuel Williams"]
-	spec.email         = ["samuel.williams@oriontransfer.co.nz"]
-	spec.summary       = %q{An async websocket library on top of websocket-driver.}
-	spec.homepage      = ""
-	spec.license       = "MIT"
-
-	spec.files         = `git ls-files -z`.split("\x0")
-	spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-	spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
-	spec.require_paths = ["lib"]
-
-	spec.add_dependency "websocket-driver", "~> 0.7.0"
-
-	spec.add_dependency "async-io"
+	spec.name = "async-websocket"
+	spec.version = Async::WebSocket::VERSION
 	
-	spec.add_development_dependency "async-rspec"
-	spec.add_development_dependency "falcon", "~> 0.17"
+	spec.summary = "An async websocket library on top of websocket-driver."
+	spec.authors = ["Samuel Williams", "destructobeam", "Olle Jonsson", "Aurora Nockert", "Bryan Powell", "Gleb Sinyavskiy", "Janko Marohnić", "Juan Antonio Martín Lucas", "Michel Boaventura"]
+	spec.license = "MIT"
 	
-	spec.add_development_dependency "covered"
+	spec.cert_chain  = ['release.cert']
+	spec.signing_key = File.expand_path('~/.gem/release.pem')
+	
+	spec.homepage = "https://github.com/socketry/async-websocket"
+	
+	spec.files = Dir.glob(['{lib}/**/*', '*.md'], File::FNM_DOTMATCH, base: __dir__)
+	
+	spec.add_dependency "async-http", "~> 0.54"
+	spec.add_dependency "async-io", "~> 1.23"
+	spec.add_dependency "protocol-rack", "~> 0.1"
+	spec.add_dependency "protocol-websocket", "~> 0.11"
+	
 	spec.add_development_dependency "bundler"
-	spec.add_development_dependency "rspec", "~> 3.6"
-	spec.add_development_dependency "rake"
+	spec.add_development_dependency "covered"
+	spec.add_development_dependency "sus", "~> 0.18"
+	spec.add_development_dependency "sus-fixtures-async-http", "~> 0.2.3"
 end

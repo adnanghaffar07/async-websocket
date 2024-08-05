@@ -1,25 +1,13 @@
+# frozen_string_literal: true
 
-if ENV['COVERAGE']
-	begin
-		require 'simplecov'
-		
-		SimpleCov.start do
-			add_filter "/spec/"
-		end
-		
-		if ENV['TRAVIS']
-			require 'coveralls'
-			Coveralls.wear!
-		end
-	rescue LoadError
-		warn "Could not load simplecov: #{$!}"
-	end
-end
+# Released under the MIT License.
+# Copyright, 2018-2022, by Samuel Williams.
 
 require 'bundler/setup'
-require 'utopia'
+require 'covered/rspec'
+require 'variant'
 
-require 'async/rspec'
+Variant.force!(:testing)
 
 RSpec.configure do |config|
 	# Enable flags like --only-failures and --next-failure
