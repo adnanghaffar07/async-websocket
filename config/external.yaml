@@ -1,3 +1,0 @@
-live:
-  url: https://github.com/socketry/live.git
-  command: bundle exec rspec

@@ -1,32 +1,29 @@
-# frozen_string_literal: true
 
-require_relative "lib/async/websocket/version"
+require_relative 'lib/async/websocket/version'
 
 Gem::Specification.new do |spec|
-	spec.name = "async-websocket"
-	spec.version = Async::WebSocket::VERSION
+	spec.name          = "async-websocket"
+	spec.version       = Async::WebSocket::VERSION
+	spec.authors       = ["Samuel Williams"]
+	spec.email         = ["samuel.williams@oriontransfer.co.nz"]
+	spec.summary       = %q{An async websocket library on top of websocket-driver.}
+	spec.homepage      = ""
+	spec.license       = "MIT"
+
+	spec.files         = `git ls-files -z`.split("\x0")
+	spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
+	spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
+	spec.require_paths = ["lib"]
+
+	spec.add_dependency "websocket-driver", "~> 0.7.0"
+
+	spec.add_dependency "async-io"
 	
-	spec.summary = "An async websocket library on top of protocol-websocket."
-	spec.authors = ["Samuel Williams", "Simon Crocker", "Olle Jonsson", "Thomas Morgan", "Aurora Nockert", "Bryan Powell", "Emily Love Mills", "Gleb Sinyavskiy", "Janko Marohnić", "Juan Antonio Martín Lucas", "Michel Boaventura", "Peter Runich", "Ryu Sato"]
-	spec.license = "MIT"
+	spec.add_development_dependency "async-rspec"
+	spec.add_development_dependency "falcon", "~> 0.17"
 	
-	spec.cert_chain  = ['release.cert']
-	spec.signing_key = File.expand_path('~/.gem/release.pem')
-	
-	spec.homepage = "https://github.com/socketry/async-websocket"
-	
-	spec.metadata = {
-		"documentation_uri" => "https://socketry.github.io/async-websocket/",
-		"funding_uri" => "https://github.com/sponsors/ioquatix",
-		"source_code_uri" => "https://github.com/socketry/async-websocket.git",
-	}
-	
-	spec.files = Dir.glob(['{lib}/**/*', '*.md'], File::FNM_DOTMATCH, base: __dir__)
-	
-	spec.required_ruby_version = ">= 3.1"
-	
-	spec.add_dependency "async-http", "~> 0.54"
-	spec.add_dependency "protocol-http", ">= 0.28.1"
-	spec.add_dependency "protocol-rack", "~> 0.5"
-	spec.add_dependency "protocol-websocket", "~> 0.15"
+	spec.add_development_dependency "covered"
+	spec.add_development_dependency "bundler"
+	spec.add_development_dependency "rspec", "~> 3.6"
+	spec.add_development_dependency "rake"
 end
